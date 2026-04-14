@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Piano Tracker" />
+  <title>🎹 Piano Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f1117;
+      color: #e8e0d0;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+    .header { text-align: center; margin-bottom: 2rem; }
+    .title { font-size: 2.2rem; font-weight: bold; letter-spacing: .12em; color: #c9a84c; text-transform: uppercase; line-height: 1; }
+    .subtitle { font-size: .85rem; letter-spacing: .25em; color: #7a7060; margin-top: .4rem; text-transform: uppercase; }
+
+    .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: .7rem; }
+
+    .pay-banner {
+      width: 100%; max-width: 420px;
+      background: #2e1a0e; border: 1px solid #c9a84c; border-radius: 10px;
+      padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .pay-banner-label { color: #c9a84c; font-weight: bold; font-size: .95rem; margin-bottom: .2rem; }
+    .pay-banner-detail { color: #b0a898; font-size: .85rem; }
+    .pay-banner-detail strong { color: #e8e0d0; }
+
+    .month-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #181c26; border: 1px solid #2e2a20; border-radius: 10px;
+      padding: .6rem 1.2rem; margin-bottom: 1.8rem;
+      width: 100%; max-width: 420px;
+    }
+    .month-nav button { background: none; border: none; color: #c9a84c; font-size: 1.4rem; cursor: pointer; line-height: 1; padding: 0 .4rem; }
+    .month-label { font-weight: bold; font-size: 1.1rem; letter-spacing: .08em; color: #e8e0d0; }
+
+    .class-btn {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      border-radius: 10px; padding: .85rem 1.2rem;
+      cursor: pointer; transition: all .18s; text-align: left;
+      font-family: inherit; color: #e8e0d0; border: 1.5px solid #2e2a20;
+      background: #16181f;
+    }
+    .class-btn.attended { background: #1a2416; border-color: #4a8a3a; }
+    .class-btn.extra { border-color: #4a3a6a; }
+    .class-btn.extra.attended { border-color: #4a8a3a; }
+
+    .class-label { font-size: .78rem; letter-spacing: .15em; color: #7a7060; text-transform: uppercase; margin-bottom: .15rem; }
+    .class-label.extra { color: #9a7abf; }
+    .class-date { font-weight: bold; font-size: 1rem; color: #b0a898; }
+    .class-date.attended { color: #a8d878; }
+
+    .check-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #2a2520; border: 2px solid #3e3830;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0; color: #e8e0d0;
+    }
+    .check-circle.attended { background: #4a8a3a; border-color: #4a8a3a; }
+
+    .btn-right { display: flex; align-items: center; gap: .6rem; }
+    .remove-btn { background: none; border: none; color: #6a4a7a; cursor: pointer; font-size: 1.1rem; padding: .2rem; line-height: 1; }
+
+    .add-btn {
+      background: none; border: 1.5px dashed #3a3060; color: #9a7abf;
+      border-radius: 10px; padding: .75rem; cursor: pointer;
+      font-family: inherit; font-size: .9rem; letter-spacing: .05em; margin-top: .2rem;
+      width: 100%;
+    }
+    .add-panel {
+      background: #181020; border: 1px solid #4a3a6a; border-radius: 10px;
+      padding: 1.1rem 1.2rem; display: flex; flex-direction: column; gap: .7rem;
+    }
+    .add-panel-label { color: #9a7abf; font-size: .85rem; letter-spacing: .1em; text-transform: uppercase; }
+    .date-input {
+      background: #0f1117; border: 1px solid #4a3a6a; color: #e8e0d0;
+      border-radius: 7px; padding: .55rem .8rem; font-size: 1rem;
+      font-family: inherit; width: 100%;
+    }
+    .add-error { color: #c94c4c; font-size: .82rem; }
+    .add-confirm-btn {
+      background: #4a3a6a; color: #e8e0d0; border: none;
+      border-radius: 7px; padding: .55rem; font-weight: bold; cursor: pointer;
+      font-family: inherit; font-size: .9rem;
+    }
+
+    .summary {
+      margin-top: 1.8rem; width: 100%; max-width: 420px;
+      background: #181c26; border: 1px solid #2e2a20; border-radius: 10px;
+      padding: 1.1rem 1.4rem; display: flex; justify-content: space-between; align-items: center;
+    }
+    .summary-sublabel { color: #7a7060; font-size: .78rem; letter-spacing: .15em; text-transform: uppercase; margin-bottom: .2rem; }
+    .summary-count { color: #e8e0d0; font-size: 1rem; }
+    .summary-count strong { color: #c9a84c; }
+    .summary-amount { color: #c9a84c; font-weight: bold; font-size: 1.4rem; }
+
+    .payment-bar {
+      margin-top: .7rem; width: 100%; max-width: 420px;
+      background: #16181f; border: 1px solid #2e2a20;
+      border-radius: 10px; padding: .85rem 1.4rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .payment-bar.paid { background: #1a2e1a; border-color: #3a6b3a; }
+    .payment-status { font-size: .9rem; color: #7a7060; }
+    .payment-status.paid { color: #a8d878; }
+    .payment-toggle-btn {
+      background: none; border: 1px solid #3e3830; color: #7a7060;
+      border-radius: 6px; padding: .3rem .75rem; cursor: pointer;
+      font-size: .8rem; font-family: inherit;
+    }
+    .payment-toggle-btn.paid { border-color: #4a8a3a; color: #a8d878; }
+
+    .btn-gold {
+      background: #c9a84c; color: #0f1117; border: none; border-radius: 6px;
+      padding: .45rem .9rem; font-weight: bold; cursor: pointer;
+      font-size: .85rem; white-space: nowrap; font-family: inherit;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1rem;
+    }
+    .modal {
+      background: #181c26; border: 1px solid #c9a84c; border-radius: 14px;
+      padding: 1.8rem; max-width: 340px; width: 100%; text-align: center;
+    }
+    .modal-icon { font-size: 1.5rem; margin-bottom: .5rem; }
+    .modal-title { font-weight: bold; font-size: 1.05rem; margin-bottom: .5rem; color: #e8e0d0; }
+    .modal-detail { color: #b0a898; font-size: .9rem; margin-bottom: 1.4rem; }
+    .modal-detail strong { color: #c9a84c; }
+    .modal-btns { display: flex; gap: .8rem; justify-content: center; }
+    .btn-cancel {
+      background: none; border: 1px solid #3e3830; color: #b0a898;
+      border-radius: 7px; padding: .55rem 1.2rem; cursor: pointer; font-family: inherit;
+    }
+    .btn-confirm {
+      background: #c9a84c; color: #0f1117; border: none;
+      border-radius: 7px; padding: .55rem 1.2rem; font-weight: bold; cursor: pointer; font-family: inherit;
+    }
+    .hidden { display: none !important; }
+    .no-classes { text-align: center; color: #5a5248; padding: 2rem; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="title">🎹 Piano Lessons</div>
+  <div class="subtitle">Class Tracker</div>
+</div>
+
+<!-- Pay banner -->
+<div id="payBanner" class="pay-banner hidden">
+  <div>
+    <div class="pay-banner-label">💰 Payment Due</div>
+    <div class="pay-banner-detail" id="payBannerDetail"></div>
+  </div>
+  <button class="btn-gold" onclick="openPayConfirm()">Mark Paid</button>
+</div>
+
+<!-- Month navigator -->
+<div class="month-nav">
+  <button onclick="changeMonth(-1)">‹</button>
+  <span class="month-label" id="monthLabel"></span>
+  <button onclick="changeMonth(1)">›</button>
+</div>
+
+<!-- Class list -->
+<div class="container" id="classList"></div>
+
+<!-- Summary -->
+<div class="summary" id="summary">
+  <div>
+    <div class="summary-sublabel">This Month</div>
+    <div class="summary-count" id="summaryCount"></div>
+  </div>
+  <div style="text-align:right">
+    <div class="summary-sublabel">Amount</div>
+    <div class="summary-amount" id="summaryAmount"></div>
+  </div>
+</div>
+
+<!-- Payment bar -->
+<div class="payment-bar" id="paymentBar">
+  <div class="payment-status" id="paymentStatus"></div>
+  <button class="payment-toggle-btn" id="paymentToggleBtn" onclick="toggleCurrentPaid()"></button>
+</div>
+
+<!-- Pay confirm modal -->
+<div class="modal-overlay hidden" id="payModal">
+  <div class="modal">
+    <div class="modal-icon">💰</div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-detail" id="modalDetail"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closePayModal()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmPaid()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const RATE = 30;
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+  // State
+  let data = {};
+  let curYear, curMonth;
+
+  function loadData() {
+    try { const s = localStorage.getItem("piano-classes"); return s ? JSON.parse(s) : {}; }
+    catch { return {}; }
+  }
+  function saveData() {
+    try { localStorage.setItem("piano-classes", JSON.stringify(data)); } catch {}
+  }
+
+  function monthKey(y, m) { return `${y}-${String(m+1).padStart(2,"0")}`; }
+  function dateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }
+  function fmtDate(d) {
+    return d.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+  }
+  function getFridays(y, m) {
+    const fridays = [];
+    const d = new Date(y, m, 1);
+    while (d.getDay() !== 5) d.setDate(d.getDate() + 1);
+    while (d.getMonth() === m) { fridays.push(new Date(d)); d.setDate(d.getDate() + 7); }
+    return fridays;
+  }
+
+  function getMonthData(y, m) {
+    const k = monthKey(y, m);
+    if (!data[k]) data[k] = { attended: {}, paid: false, extra: [] };
+    return data[k];
+  }
+
+  function getAllDates(y, m) {
+    const md = getMonthData(y, m);
+    const fridays = getFridays(y, m);
+    const regularKeys = new Set(fridays.map(dateKey));
+    const extras = (md.extra || []).map(s => new Date(s + "T12:00:00")).filter(d => !regularKeys.has(dateKey(d)));
+    return [...fridays, ...extras].sort((a,b) => a-b);
+  }
+
+  function changeMonth(dir) {
+    curMonth += dir;
+    if (curMonth < 0) { curMonth = 11; curYear--; }
+    if (curMonth > 11) { curMonth = 0; curYear++; }
+    render();
+  }
+
+  function toggleAttended(dk) {
+    const md = getMonthData(curYear, curMonth);
+    md.attended[dk] = !md.attended[dk];
+    saveData(); render();
+  }
+
+  function removeExtra(dk) {
+    const md = getMonthData(curYear, curMonth);
+    md.extra = (md.extra || []).filter(e => e !== dk);
+    delete md.attended[dk];
+    saveData(); render();
+  }
+
+  function toggleAddPanel() {
+    const panel = document.getElementById("addPanel");
+    const btn = document.getElementById("addBtn");
+    if (panel.classList.contains("hidden")) {
+      panel.classList.remove("hidden");
+      btn.textContent = "✕ Cancel";
+      document.getElementById("addError").textContent = "";
+      document.getElementById("newDateInput").value = "";
+    } else {
+      panel.classList.add("hidden");
+      btn.textContent = "＋ Add Extra Class Date";
+    }
+  }
+
+  function addExtraDate() {
+    const input = document.getElementById("newDateInput");
+    const errEl = document.getElementById("addError");
+    errEl.textContent = "";
+    const val = input.value;
+    if (!val) { errEl.textContent = "Please pick a date."; return; }
+    const d = new Date(val + "T12:00:00");
+    if (d.getFullYear() !== curYear || d.getMonth() !== curMonth) {
+      errEl.textContent = "Date must be in " + MONTHS[curMonth] + " " + curYear + "."; return;
+    }
+    const dk = dateKey(d);
+    const md = getMonthData(curYear, curMonth);
+    const fridays = getFridays(curYear, curMonth);
+    const regularKeys = new Set(fridays.map(dateKey));
+    if (regularKeys.has(dk) || (md.extra || []).includes(dk)) {
+      errEl.textContent = "This date is already listed."; return;
+    }
+    md.extra = [...(md.extra || []), dk];
+    saveData(); render();
+  }
+
+  function openPayConfirm() {
+    const prevDate = new Date(curYear, curMonth - 1, 1);
+    const py = prevDate.getFullYear(), pm = prevDate.getMonth();
+    const allDates = getAllDates(py, pm);
+    const prevMd = getMonthData(py, pm);
+    const attended = allDates.filter(d => prevMd.attended[dateKey(d)]).length;
+    document.getElementById("modalTitle").textContent = "Mark " + MONTHS[pm] + " as Paid?";
+    document.getElementById("modalDetail").innerHTML = `${attended} class${attended!==1?"es":""} × $30 = <strong>$${attended*RATE}</strong>`;
+    document.getElementById("payModal").classList.remove("hidden");
+  }
+
+  function closePayModal() {
+    document.getElementById("payModal").classList.add("hidden");
+  }
+
+  function confirmPaid() {
+    const prevDate = new Date(curYear, curMonth - 1, 1);
+    const py = prevDate.getFullYear(), pm = prevDate.getMonth();
+    getMonthData(py, pm).paid = true;
+    saveData(); closePayModal(); render();
+  }
+
+  function toggleCurrentPaid() {
+    const md = getMonthData(curYear, curMonth);
+    if (md.paid) { md.paid = false; saveData(); render(); }
+    else { openPayConfirmCurrent(); }
+  }
+
+  function openPayConfirmCurrent() {
+    const allDates = getAllDates(curYear, curMonth);
+    const md = getMonthData(curYear, curMonth);
+    const attended = allDates.filter(d => md.attended[dateKey(d)]).length;
+    document.getElementById("modalTitle").textContent = "Mark " + MONTHS[curMonth] + " as Paid?";
+    document.getElementById("modalDetail").innerHTML = `${attended} class${attended!==1?"es":""} × $30 = <strong>$${attended*RATE}</strong>`;
+    // Temporarily override confirm to mark current month
+    document.querySelector(".btn-confirm").onclick = function() {
+      getMonthData(curYear, curMonth).paid = true;
+      saveData(); closePayModal(); render();
+      document.querySelector(".btn-confirm").onclick = confirmPaid;
+    };
+    document.getElementById("payModal").classList.remove("hidden");
+  }
+
+  function render() {
+    const key = monthKey(curYear, curMonth);
+    const md = getMonthData(curYear, curMonth);
+    const allDates = getAllDates(curYear, curMonth);
+    const fridays = getFridays(curYear, curMonth);
+    const regularKeys = new Set(fridays.map(dateKey));
+
+    // Month label
+    document.getElementById("monthLabel").textContent = MONTHS[curMonth] + " " + curYear;
+
+    // Previous month payment banner
+    const prevDate = new Date(curYear, curMonth - 1, 1);
+    const py = prevDate.getFullYear(), pm = prevDate.getMonth();
+    const prevMd = getMonthData(py, pm);
+    const prevAllDates = getAllDates(py, pm);
+    const prevAttended = prevAllDates.filter(d => prevMd.attended[dateKey(d)]).length;
+    const banner = document.getElementById("payBanner");
+    if (prevAttended > 0 && !prevMd.paid) {
+      banner.classList.remove("hidden");
+      document.getElementById("payBannerDetail").innerHTML =
+        `${MONTHS[pm]} ${py}: ${prevAttended} class${prevAttended!==1?"es":""} × $30 = <strong>$${prevAttended*RATE}</strong>`;
+    } else {
+      banner.classList.add("hidden");
+    }
+
+    // Class list
+    const classList = document.getElementById("classList");
+    const minDate = `${curYear}-${String(curMonth+1).padStart(2,"0")}-01`;
+    const lastDay = new Date(curYear, curMonth+1, 0).getDate();
+    const maxDate = `${curYear}-${String(curMonth+1).padStart(2,"0")}-${String(lastDay).padStart(2,"0")}`;
+
+    let html = "";
+    if (allDates.length === 0) {
+      html += `<div class="no-classes">No classes this month yet.</div>`;
+    }
+    allDates.forEach((d, i) => {
+      const dk = dateKey(d);
+      const attended = !!md.attended[dk];
+      const isExtra = !regularKeys.has(dk);
+      const dayName = DAYS[d.getDay()];
+      html += `
+        <button class="class-btn${attended?" attended":""}${isExtra?" extra":""}" onclick="toggleAttended('${dk}')">
+          <div>
+            <div class="class-label${isExtra?" extra":""}">${isExtra ? "✦ Extra Class" : "Class " + (i+1)} &nbsp;·&nbsp; ${dayName}</div>
+            <div class="class-date${attended?" attended":""}">${fmtDate(d)}</div>
+          </div>
+          <div class="btn-right">
+            ${isExtra ? `<button class="remove-btn" onclick="event.stopPropagation();removeExtra('${dk}')">✕</button>` : ""}
+            <div class="check-circle${attended?" attended":""}">${attended?"✓":""}</div>
+          </div>
+        </button>`;
+    });
+
+    html += `
+      <button class="add-btn" id="addBtn" onclick="toggleAddPanel()">＋ Add Extra Class Date</button>
+      <div class="add-panel hidden" id="addPanel">
+        <div class="add-panel-label">Pick a date in ${MONTHS[curMonth]}</div>
+        <input type="date" class="date-input" id="newDateInput" min="${minDate}" max="${maxDate}" />
+        <div class="add-error" id="addError"></div>
+        <button class="add-confirm-btn" onclick="addExtraDate()">Add Class</button>
+      </div>`;
+
+    classList.innerHTML = html;
+
+    // Summary
+    const attendedCount = allDates.filter(d => md.attended[dateKey(d)]).length;
+    const total = attendedCount * RATE;
+    document.getElementById("summaryCount").innerHTML = `<strong>${attendedCount}</strong> of ${allDates.length} classes`;
+    document.getElementById("summaryAmount").textContent = "$" + total;
+
+    // Payment bar
+    const bar = document.getElementById("paymentBar");
+    const statusEl = document.getElementById("paymentStatus");
+    const toggleBtn = document.getElementById("paymentToggleBtn");
+    if (md.paid) {
+      bar.classList.add("paid");
+      statusEl.className = "payment-status paid";
+      statusEl.textContent = "✓ Payment recorded";
+      toggleBtn.className = "payment-toggle-btn paid";
+      toggleBtn.textContent = "Undo";
+    } else {
+      bar.classList.remove("paid");
+      statusEl.className = "payment-status";
+      statusEl.textContent = "Payment pending";
+      toggleBtn.className = "payment-toggle-btn";
+      toggleBtn.textContent = "Mark Paid";
+    }
+  }
+
+  // Init
+  const today = new Date();
+  curYear = today.getFullYear();
+  curMonth = today.getMonth();
+  data = loadData();
+  render();
+</script>
+</body>
+</html>
