@@ -210,7 +210,7 @@
 </div>
 
 <script>
-  const RATE = 30;
+  const RATE = 60;
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
@@ -317,7 +317,7 @@
     const prevMd = getMonthData(py, pm);
     const attended = allDates.filter(d => prevMd.attended[dateKey(d)]).length;
     document.getElementById("modalTitle").textContent = "Mark " + MONTHS[pm] + " as Paid?";
-    document.getElementById("modalDetail").innerHTML = `${attended} class${attended!==1?"es":""} × $30 = <strong>$${attended*RATE}</strong>`;
+    document.getElementById("modalDetail").innerHTML = `${attended} class${attended!==1?"es":""} × $${RATE} = <strong>$${attended*RATE}</strong>`;
     document.getElementById("payModal").classList.remove("hidden");
   }
 
@@ -343,7 +343,7 @@
     const md = getMonthData(curYear, curMonth);
     const attended = allDates.filter(d => md.attended[dateKey(d)]).length;
     document.getElementById("modalTitle").textContent = "Mark " + MONTHS[curMonth] + " as Paid?";
-    document.getElementById("modalDetail").innerHTML = `${attended} class${attended!==1?"es":""} × $30 = <strong>$${attended*RATE}</strong>`;
+    document.getElementById("modalDetail").innerHTML = `${attended} class${attended!==1?"es":""} × $${RATE} = <strong>$${attended*RATE}</strong>`;
     // Temporarily override confirm to mark current month
     document.querySelector(".btn-confirm").onclick = function() {
       getMonthData(curYear, curMonth).paid = true;
@@ -373,7 +373,7 @@
     if (prevAttended > 0 && !prevMd.paid) {
       banner.classList.remove("hidden");
       document.getElementById("payBannerDetail").innerHTML =
-        `${MONTHS[pm]} ${py}: ${prevAttended} class${prevAttended!==1?"es":""} × $30 = <strong>$${prevAttended*RATE}</strong>`;
+        `${MONTHS[pm]} ${py}: ${prevAttended} class${prevAttended!==1?"es":""} × $${RATE} = <strong>$${prevAttended*RATE}</strong>`;
     } else {
       banner.classList.add("hidden");
     }
